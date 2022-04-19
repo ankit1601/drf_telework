@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .serializers import StaffDataSerializer
 from .models import StaffData
 
@@ -13,7 +13,8 @@ class StaffDataViewSet(viewsets.ModelViewSet):
     serializer_class = StaffDataSerializer
 
     def list(self, request):
-        serializer = StaffDataSerializer(self.queryset, many=True)
+        queryset = StaffData.objects.all()
+        serializer = StaffDataSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def create(self, request):
@@ -31,13 +32,23 @@ class StaffDataViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def update(self, request, pk=None):
-        pass
+        user = get_object_or_404(self.queryset, pk=pk)
+        serializer = StaffDataSerializer(user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
     def partial_update(self, request, pk=None):
-        pass
+        user = get_object_or_404(self.queryset, pk=pk)
+        serializer = StaffDataSerializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True),
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
     def destroy(self, request, pk=None):
-        pass
+        user = get_object_or_404(self.queryset, pk=pk)
+        self.perform_destroy(user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class StaffDataCreateView(APIView):
