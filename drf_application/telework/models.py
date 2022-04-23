@@ -15,3 +15,13 @@ class StaffData(models.Model):
 
     class Meta:
         db_table = 'staff_data_tbl'
+
+
+class StaffAccountModel(models.Model):
+    salary = models.IntegerField()
+    account_number = models.IntegerField()
+    email = models.EmailField()
+    staff = models.ForeignKey(StaffData, on_delete=models.CASCADE, related_name="staff")
+
+    class Meta:
+        db_table = 'staff_ac_tbl'

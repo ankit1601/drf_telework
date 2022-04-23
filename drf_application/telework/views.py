@@ -2,15 +2,27 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets, status
-from .serializers import StaffDataSerializer
-from .models import StaffData
+from rest_framework.renderers import AdminRenderer, JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
+from .serializers import StaffDataSerializer, CustomStaffDataSerializer, AccountSerializer
+from .models import StaffData, StaffAccountModel
 
 # Create your views here.
+
+
+class CustomBrowsableAPIRenderer(BrowsableAPIRenderer):
+    def get_default_renderer(self, view):
+        return JSONRenderer()
+
+
+class AccountDataView(viewsets.ModelViewSet):
+    queryset = StaffAccountModel.objects.all()
+    serializer_class = AccountSerializer
 
 
 class StaffDataViewSet(viewsets.ModelViewSet):
     queryset = StaffData.objects.all()
     serializer_class = StaffDataSerializer
+    renderer_classes = (CustomBrowsableAPIRenderer, )
 
     def list(self, request):
         queryset = StaffData.objects.all()
@@ -56,7 +68,7 @@ class StaffDataCreateView(APIView):
 
     def get(self, request):
         queryset = StaffData.objects.all()
-        serializer = StaffDataSerializer(queryset, many=True)
+        serializer = CustomStaffDataSerializer(queryset, many=True)
         data = serializer.data
         return Response(data=data, status=200)
 
